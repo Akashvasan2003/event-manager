@@ -6,3 +6,6 @@ out/
 !.env.local.example
 npm-debug.log*
 .vercel
+
+.vercel
+.env*
