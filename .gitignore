@@ -1,0 +1,13 @@
+# Root gitignore — defensive backstop
+node_modules/
+.env
+.env.*
+!.env.example
+.next/
+out/
+dist/
+npm-debug.log*
+.DS_Store
+Thumbs.db
+*.log
+coverage/

@@ -1,0 +1,360 @@
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --text: #1a202c;
+  --muted: #6b7280;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --border: #e5e7eb;
+  --error: #dc2626;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.page__header {
+  margin-bottom: 1.5rem;
+}
+
+.page__header h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.page__header p {
+  color: var(--muted);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+/* --- Stepper ------------------------------------------------------------ */
+.stepper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 0.25rem;
+}
+
+.stepper__step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stepper__dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--border);
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.stepper__step--active .stepper__dot {
+  background: var(--primary);
+  color: #fff;
+}
+
+.stepper__step--done .stepper__dot {
+  background: var(--primary-hover);
+  color: #fff;
+}
+
+.stepper__label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: none;
+}
+
+.stepper__step--active .stepper__label,
+.stepper__step--done .stepper__label {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.stepper__line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* --- Form fields ---------------------------------------------------------- */
+.field {
+  margin-bottom: 1rem;
+}
+
+.field__label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+}
+
+.field__label .optional {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.field__input,
+.field__select,
+.field__textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.field__input:focus,
+.field__select:focus,
+.field__textarea:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+  border-color: var(--primary);
+}
+
+.field__input--error,
+.field__select--error {
+  border-color: var(--error);
+}
+
+.field__error {
+  color: var(--error);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.field__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* --- Buttons --------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.4rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn:hover {
+  background: var(--primary-hover);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.btn--secondary:hover {
+  background: var(--bg);
+}
+
+.form__actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  gap: 0.75rem;
+}
+
+.form__actions--start {
+  justify-content: flex-end;
+}
+
+/* --- Checkboxes / radios ---------------------------------------------------- */
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.choice:hover {
+  border-color: var(--primary);
+}
+
+.choice--checked {
+  border-color: var(--primary);
+  background: #eef2ff;
+}
+
+/* --- Status banners ---------------------------------------------------------- */
+.banner {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.banner--error {
+  background: #fef2f2;
+  color: var(--error);
+  border: 1px solid #fecaca;
+}
+
+.banner--success {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+/* --- Success screen ------------------------------------------------------------ */
+.success__icon {
+  font-size: 2.5rem;
+}
+
+.success__id {
+  font-family: monospace;
+  background: var(--bg);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  word-break: break-all;
+}
+
+/* --- Responsive ------------------------------------------------------------------ */
+@media (min-width: 640px) {
+  .stepper__label {
+    display: inline;
+  }
+}
+
+@media (max-width: 560px) {
+  .field__row {
+    grid-template-columns: 1fr;
+  }
+
+  .form__actions {
+    flex-direction: column-reverse;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+/* --- Step 1 additions -------------------------------------------------------- */
+.card__title {
+  font-size: 1.25rem;
+  margin: 0 0 0.25rem;
+}
+
+.card__subtitle {
+  color: var(--muted, #6b7280);
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+}
+
+.category-pill {
+  margin-top: 1rem;
+  padding: 0.6rem 0.9rem;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.category-pill strong {
+  color: var(--primary, #2563eb);
+}
+
+/* --- Review step (Step 4) ---------------------------------------------------- */
+.review-section {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.review-section__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.review-section__head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.btn--small {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+/* --- Success screen ----------------------------------------------------------- */
+.success__details {
+  margin: 0 auto 1.5rem;
+  max-width: 380px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+.success__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+}
+
+.success__row dt {
+  color: var(--muted, #6b7280);
+  font-size: 0.9rem;
+}
+
+.success__row dd {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  word-break: break-all;
+}
