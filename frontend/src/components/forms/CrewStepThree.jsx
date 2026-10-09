@@ -8,7 +8,7 @@ const yesNo = [
   { value: false, label: 'No' },
 ];
 
-export default function CrewStepThree({ form, update, updateNotes, next, back }) {
+export default function CrewStepThree({ form, serverErrors, update, updateNotes, next, back }) {
   const details = form.categoryDetails;
   const { errors, handleNext } = useStepValidation(() => ({})); // all optional
 

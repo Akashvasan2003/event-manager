@@ -10,7 +10,7 @@ const TIMELINES = [
   { value: '6-plus-months', label: 'More than 6 months' },
 ];
 
-export default function PlannerStepThree({ form, update, updateNotes, next, back }) {
+export default function PlannerStepThree({ form, serverErrors, update, updateNotes, next, back }) {
   const details = form.categoryDetails;
 
   const { errors, handleNext } = useStepValidation(() => {
