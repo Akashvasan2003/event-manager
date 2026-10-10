@@ -1,0 +1,5 @@
+# Never upload local env files to Vercel — production values come from the
+# Vercel project settings (dashboard env vars), not from this machine.
+.env
+.env.local
+.env.*.local
