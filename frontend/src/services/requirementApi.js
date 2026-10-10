@@ -1,7 +1,10 @@
 // Thin service layer around the backend REST API.
 // All fetch() calls live here — UI components never call fetch directly.
-// Base URL comes from NEXT_PUBLIC_API_URL (set in .env.local).
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// Base URL comes from NEXT_PUBLIC_API_URL (set in Vercel project env vars or
+// .env.local). Trimmed and stripped of a UTF-8 BOM — an env var pasted from a
+// BOM'd file otherwise yields "\uFEFFhttp://..." and every request 404s.
+const RAW_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const BASE_URL = RAW_URL.replace(/^\uFEFF/, '').trim().replace(/\/$/, '');
 
 async function request(path, options = {}) {
   let res;
