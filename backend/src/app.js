@@ -1,19 +1,26 @@
 const express = require('express');
 const cors = require('cors');
-
 const requirementRoutes = require('./routes/requirementRoutes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
 // --- CORS ---------------------------------------------------------------
-// Local dev uses CLIENT_URL (or CLIENT_ORIGIN), default http://localhost:3000.
-// In production set CLIENT_URL to the deployed frontend URL.
-const allowedOrigins = (
-  process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || 'http://localhost:3000'
-)
+// Allowed origins: CLIENT_URL (comma-separated) plus safe defaults.
+//   local dev  : http://localhost:3000
+//   production : the deployed Vercel frontend
+// Set CLIENT_URL in the backend host's env vars (Render/Railway) to include
+// the production origin; the defaults below keep local dev and the deployed
+// frontend working without a config change.
+const DEFAULT_ORIGINS = [
+  'http://localhost:3000',
+  'https://event-manager-three-kohl.vercel.app',
+];
+const envOrigins = (process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || '')
   .split(',')
-  .map((o) => o.trim());
+  .map((o) => o.trim())
+  .filter(Boolean);
+const allowedOrigins = [...new Set([...envOrigins, ...DEFAULT_ORIGINS])];
 
 app.use(
   cors({
