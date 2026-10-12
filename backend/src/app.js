@@ -35,7 +35,16 @@ app.use(
 app.use(express.json({ limit: '100kb' }));
 
 // --- Routes ---------------------------------------------------------------
-app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/api/health', (req, res) => {
+  // mongoose.connection.readyState: 0=disconnected 1=connected 2=connecting 3=disconnecting
+  const dbState = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+  res.json({
+    status: 'ok',
+    service: 'gopratle-api',
+    database: dbState[require('mongoose').connection.readyState] || 'unknown',
+    environment: process.env.NODE_ENV || 'development',
+  });
+});
 app.use('/api/requirements', requirementRoutes);
 
 // --- Errors ---------------------------------------------------------------
