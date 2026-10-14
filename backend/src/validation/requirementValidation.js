@@ -135,7 +135,8 @@ const validateCategoryDetails = (errors, category, details = {}) => {
         checkMulti(errors, value, rule.label, { required: rule.required });
         break;
       case 'bool':
-        if (hasValue(value) && typeof value !== 'boolean') {
+        // HTML forms send strings; the controller coerces 'true'/'false' to booleans
+        if (hasValue(value) && value !== true && value !== false && value !== 'true' && value !== 'false') {
           errors.push(`${rule.label} must be true or false.`);
         }
         break;

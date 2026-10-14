@@ -2,60 +2,96 @@ const Requirement = require('../models/Requirement');
 const validateRequirement = require('../validation/requirementValidation');
 
 /**
- * HTML form values arrive as strings. Coerce the numeric/string-typed
- * categoryDetails fields to their proper types before validation + save.
- * Field types come from the same rule table the validator uses, so there is
- * a single source of truth.
+ * The wizard posts { eventBasics, categoryDetails, additionalNotes }.
+ * We store Step 1 data flat and move categoryDetails into exactly one of
+ * plannerDetails / performerDetails / crewDetails, renaming fields where the
+ * storage name differs (e.g. crewRole -> crewRoles, crewCount -> numberOfCrew).
+ * Only fields declared in the validation rule table are copied, so unrelated
+ * category data can never reach the document. Unfilled details objects are
+ * not stored at all.
  */
-function coerceCategoryDetails(category, details = {}) {
+const DETAILS_KEY = {
+  planner: 'plannerDetails',
+  performer: 'performerDetails',
+  crew: 'crewDetails',
+};
+
+// wizard field name -> stored field name
+const RENAMES = {
+  crewRole: 'crewRoles',
+  crewCount: 'numberOfCrew',
+  performerCount: 'numberOfPerformers',
+  durationMins: 'performanceDurationMins',
+};
+
+function buildDocument(body = {}) {
+  const basics = body.eventBasics || {};
+  const category = basics.category;
+  const raw = body.categoryDetails || {};
   const { RULES } = require('../validation/requirementValidation');
   const rules = RULES[category] || {};
-  const out = {};
 
+  const details = {};
   for (const [field, rule] of Object.entries(rules)) {
-    const value = details[field];
+    let value = raw[field];
     if (value === undefined || value === null || value === '') continue;
 
     switch (rule.kind) {
       case 'num':
-        out[field] = Number(value);
+        value = Number(value);
+        if (!Number.isFinite(value)) continue;
         break;
       case 'bool':
-        out[field] = value === true || value === 'true';
+        value = value === true || value === 'true';
         break;
       case 'multi':
-        out[field] = Array.isArray(value) ? value : [];
+        value = Array.isArray(value) ? value : [];
+        break;
+      case 'str':
+        value = String(value).trim();
         break;
       default:
-        out[field] = value;
+        break;
     }
+    details[RENAMES[field] || field] = value;
   }
-  return out;
+
+  const doc = {
+    eventName: basics.eventName,
+    eventType: basics.eventType,
+    dateMode: basics.dateMode,
+    startDate: basics.startDate,
+    endDate: basics.endDate || null,
+    location: basics.location,
+    venue: basics.venue || '',
+    category,
+    additionalNotes: body.additionalNotes || '',
+  };
+
+  // Store ONLY the relevant details object; skip empty ones entirely.
+  const key = DETAILS_KEY[category];
+  if (key && Object.keys(details).length > 0) {
+    doc[key] = details;
+  }
+
+  return doc;
 }
 
 // POST /api/requirements
 exports.createRequirement = async (req, res, next) => {
   try {
-    const payload = {
-      eventBasics: req.body.eventBasics || {},
-      categoryDetails: coerceCategoryDetails(
-        req.body.eventBasics?.category,
-        req.body.categoryDetails || {}
-      ),
-      additionalNotes: req.body.additionalNotes || '',
-    };
+    const doc = buildDocument(req.body);
 
-    const errors = validateRequirement(payload);
+    const errors = validateRequirement(req.body);
     if (errors.length > 0) {
       return res.status(400).json({ success: false, message: 'Validation failed', errors });
     }
 
-    const requirement = await Requirement.create(payload);
+    const requirement = await Requirement.create(doc);
     return res
       .status(201)
       .json({ success: true, message: 'Requirement submitted successfully', data: requirement });
   } catch (err) {
-    // Mongoose validation / cast errors -> 400 with readable messages
     if (err.name === 'ValidationError') {
       const messages = Object.values(err.errors).map((e) => e.message);
       return res.status(400).json({ success: false, message: 'Validation failed', errors: messages });
@@ -64,18 +100,14 @@ exports.createRequirement = async (req, res, next) => {
   }
 };
 
-// GET /api/requirements  (optional ?category=planner|performer|crew for admin testing)
+// GET /api/requirements  (optional ?category=planner|performer|crew)
 exports.getRequirements = async (req, res, next) => {
   try {
     const filter = {};
-    if (req.query.category) filter['eventBasics.category'] = req.query.category;
+    if (req.query.category) filter.category = req.query.category;
 
     const requirements = await Requirement.find(filter).sort({ createdAt: -1 }).limit(100);
-    return res.json({
-      success: true,
-      count: requirements.length,
-      data: requirements,
-    });
+    return res.json({ success: true, count: requirements.length, data: requirements });
   } catch (err) {
     return next(err);
   }

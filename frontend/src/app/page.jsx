@@ -27,48 +27,6 @@ const STEP3_COMPONENTS = {
 };
 
 const STEPS = ['Event Basics', 'Requirements', 'Details', 'Review'];
-// The API returns human-readable validation messages like "Planning scope is
-// required." Map each message's leading label back to the wizard field so the
-// error can render beside the relevant input (serverErrors[field]).
-const FIELD_BY_LABEL = {
-  'Event name': 'eventName',
-  'Event type': 'eventType',
-  'Location': 'location',
-  'Venue': 'venue',
-  'Start date': 'startDate',
-  'End date': 'endDate',
-  'Category': 'category',
-  'Planning scope': 'planningScope',
-  'Expected guest count': 'guestCount',
-  'Minimum budget': 'budgetMin',
-  'Maximum budget': 'budgetMax',
-  'Planning services required': 'servicesRequired',
-  'Event theme / style': 'themeStyle',
-  'Planning timeline': 'planningTimeline',
-  'Coordinators required': 'coordinatorsNeeded',
-  'Performance type': 'performanceType',
-  'Genre': 'genre',
-  'Number of performers': 'performerCount',
-  'Performance duration (minutes)': 'durationMins',
-  'Crew roles required': 'crewRole',
-  'Number of crew members': 'crewCount',
-  'Required experience': 'experienceLevel',
-  'Working hours (per shift)': 'workingHours',
-  'Equipment items': 'equipmentRequired',
-};
-// Turn API messages into { field: message } for inline display. Messages that
-// don't map to a single field (e.g. cross-field budget sanity) are skipped and
-// surfaced through the submit banner instead.
-function toServerErrors(messages = []) {
-  const map = {};
-  for (const msg of messages) {
-    if (typeof msg !== 'string') continue;
-    const label = msg.split(/ is required\.| must be | cannot be /)[0].trim();
-    const field = FIELD_BY_LABEL[label];
-    if (field && !map[field]) map[field] = msg;
-  }
-  return map;
-}
 
 export default function HomePage() {
   const [step, setStep] = useState(1);
@@ -94,9 +52,6 @@ export default function HomePage() {
           ? {}
           : f.categoryDetails,
     }));
-    // Category fields differ per category — stale server errors from the old
-    // category would render beside fields that no longer exist.
-    if (patch.category !== undefined) setServerErrors({});
   }, []);
 
   // Merge a patch into categoryDetails (Steps 2 & 3)
@@ -130,7 +85,6 @@ export default function HomePage() {
       const messages = err.response?.data?.errors;
       if (Array.isArray(messages)) {
         setSubmitError(messages.join(' '));
-        setServerErrors(toServerErrors(messages));
       } else {
         setSubmitError(err.message || 'Something went wrong. Please try again.');
       }
@@ -143,8 +97,6 @@ export default function HomePage() {
     setSaved(null);
     setStep(1);
     setForm({ eventBasics: { category: '', dateMode: 'single' }, categoryDetails: {}, additionalNotes: '' });
-    setServerErrors({});
-    setSubmitError('');
   }
 
   if (saved) {

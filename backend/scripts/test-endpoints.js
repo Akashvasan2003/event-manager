@@ -82,9 +82,9 @@ async function main() {
   check('POST planner (valid) -> 201 with _id', valid.status === 201 && !!valid.body.data?._id);
   check(
     'planner details nested + coerced',
-    valid.body.data?.eventBasics?.category === 'planner' &&
-      valid.body.data?.categoryDetails?.guestCount === 150 &&
-      valid.body.data?.categoryDetails?.budgetMin === 100000
+    valid.body.data?.category === 'planner' &&
+      valid.body.data?.plannerDetails?.guestCount === 150 &&
+      valid.body.data?.plannerDetails?.budgetMin === 100000 && !valid.body.data?.performerDetails?.genre && !valid.body.data?.crewDetails?.numberOfCrew
   );
 
   // 3. invalid posts: bad basics and bad category details
@@ -164,7 +164,7 @@ async function main() {
   });
   check(
     'POST crew (valid) -> 201 with coerced details',
-    crew.status === 201 && crew.body.data?.categoryDetails?.crewCount === 6
+    crew.status === 201 && crew.body.data?.crewDetails?.numberOfCrew === 6 && crew.body.data?.crewDetails?.crewRoles?.includes('security')
   );
 
   // 5. list + filter
@@ -178,7 +178,7 @@ async function main() {
   // 6. by id + 404 + malformed JSON paths
   const byId = await get(`/api/requirements/${valid.body.data._id}`);
   const missing = await get('/api/requirements/000000000000000000000000');
-  check('GET by id -> 200', byId.status === 200 && byId.body.data?.eventBasics?.eventName === 'Test Gala');
+  check('GET by id -> 200', byId.status === 200 && byId.body.data?.eventName === 'Test Gala');
   check('GET unknown id -> 404', missing.status === 404);
 
   const malformed = await new Promise((resolve, reject) => {
@@ -210,3 +210,6 @@ main().catch((err) => {
   console.error('Smoke test crashed:', err);
   process.exit(1);
 });
+
+
+
