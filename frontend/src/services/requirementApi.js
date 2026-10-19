@@ -8,12 +8,29 @@ function sanitizeBaseUrl(raw) {
   let url = (raw ?? '').trim().replace(/^\uFEFF/, ''); // strip BOM (env files sometimes carry one)
   if (!url) {
     if (process.env.NODE_ENV === 'production') {
-      // Loud, greppable warning: a production build must never fall back to localhost.
-      console.warn('[requirementApi] NEXT_PUBLIC_API_URL is not set — falling back to http://localhost:5000');
+      throw new Error('NEXT_PUBLIC_API_URL must be set for production builds.');
     }
     url = 'http://localhost:5000';
   }
-  return url.replace(/\/+$/, ''); // no trailing slash, so /api/... never doubles up
+
+  url = url.replace(/\/+$/, ''); // no trailing slash, so /api/... never doubles up
+  if (process.env.NODE_ENV === 'production') {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      throw new Error('NEXT_PUBLIC_API_URL must be a valid HTTPS URL in production.');
+    }
+
+    const hostname = parsed.hostname.toLowerCase();
+    const isLoopback = hostname === 'localhost' || hostname.endsWith('.localhost') ||
+      hostname === '127.0.0.1' || hostname === '[::1]';
+    if (parsed.protocol !== 'https:' || isLoopback || parsed.username || parsed.password) {
+      throw new Error('NEXT_PUBLIC_API_URL must be a public HTTPS URL in production.');
+    }
+  }
+
+  return url;
 }
 
 /**
