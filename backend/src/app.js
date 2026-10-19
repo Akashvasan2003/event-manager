@@ -15,6 +15,7 @@ const app = express();
 const DEFAULT_ORIGINS = [
   'http://localhost:3000',
   'https://event-manager-three-kohl.vercel.app',
+  'https://event-manager-jdhkrh609-akash-s-project1.vercel.app',
 ];
 const envOrigins = (process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || '')
   .split(',')
@@ -22,13 +23,41 @@ const envOrigins = (process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || '')
   .filter(Boolean);
 const allowedOrigins = [...new Set([...envOrigins, ...DEFAULT_ORIGINS])];
 
+function isAllowedVercelPreview(origin) {
+  let url;
+  try {
+    url = new URL(origin);
+  } catch {
+    return false;
+  }
+
+  if (url.protocol !== 'https:' || url.origin !== origin) return false;
+
+  const host = url.hostname.toLowerCase();
+  if (!host.endsWith('.vercel.app')) return false;
+
+  const deploymentName = host.slice(0, -'.vercel.app'.length);
+  const scope = 'akash-s-project1';
+  return (
+    new RegExp(`^(?:[a-z0-9]{5,32}-)?event-manager-${scope}$`).test(deploymentName) ||
+    new RegExp(`^event-manager-[a-z0-9]{5,32}-${scope}$`).test(deploymentName) ||
+    new RegExp(`^event-manager-git-[a-z0-9-]{1,64}-${scope}$`).test(deploymentName)
+  );
+}
+
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow tools that send no Origin header (curl, Postman, health checks)
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
+      if (!origin || allowedOrigins.includes(origin) || isAllowedVercelPreview(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
     },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 204,
   })
 );
 
