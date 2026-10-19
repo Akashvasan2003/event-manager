@@ -1,8 +1,8 @@
 import '../styles/globals.css';
 
 export const metadata = {
-  title: 'GoPratle — Post an Event Requirement',
-  description: 'Find planners, performers, and crew for your event.',
+  title: 'GoPratle | Event Workspace',
+  description: 'Organize event requirements, schedules, and planning requests with GoPratle.',
 };
 
 export default function RootLayout({ children }) {
